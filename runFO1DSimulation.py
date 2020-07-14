@@ -2,6 +2,8 @@ from datetime import datetime
 from joblib import Parallel, delayed
 from FO1Dconstants import *
 import multiprocessing
+import matplotlib.pyplot as plt
+import math
 
 startTimeStamp = datetime.now().strftime('%Y%m%d_%H%M%S')
 
@@ -17,29 +19,45 @@ def create_simulated_space():
 def create_object_fucntion():
     simulated_space = create_simulated_space()
     # #####################Step Object#####################
-    # K = 1
-    # h = np.zeros_like(l)
-    # for counter, element in enumerate(simulated_space):
-    #     if element < 0:
-    #         h[counter] = 1
-    # h = K * h
-    # simulated_space *= 1e-9
-    # phase_shift = K * h * np.pi
-    # amp = 1
+    K = 1
+    h = np.zeros_like(simulated_space)
+    for counter, element in enumerate(simulated_space):
+        if element < 0:
+            h[counter] = 1
+    h = K * h
+    simulated_space *= 1e-9
+    phase_shift = K * h * np.pi
+    amp = 1
     # #####################Step Object#####################
 
     #####################Sin Object#####################
-    period = 800
-    kval = 30
-    K = kval * np.pi
-    h = K * np.pi * np.sin(2 * np.pi / period * simulated_space)
-    simulated_space *= 1e-9
-    phase_shift = h
-    amp = 1
+    # period = 800
+    # kval = 30
+    # K = kval * np.pi
+    # h = K * np.pi * np.sin(2 * np.pi / period * simulated_space)
+    # simulated_space *= 1e-9 
+    # phase_shift = h 
+    # amp = 1
     #####################Sin Object#####################
-
+    
+    ###############Pure Amplitude Object################
+    # phase_shift = 0
+    # amp = np.zeros_like(simulated_space)
+    # cut = math.ceil(simulatingSpaceTotalStep/2)
+    # for i in range(-cut,0):
+    #     amp[i] = 1
+    # for i in range(0,cut+1):
+    #     amp[i] = 0.5**0.5
+    ###############Pure Amplitude Object################
+    
+    ###############Pure Phase Object####################
+    # phase_shift = np.zeros_like(simulated_space)
+    # cut = math.ceil(simulatingSpaceTotalStep/2)
+    # for i in range(0,cut+1):
+    #     phase_shift[i] = np.pi
+    # amp = 1
+    ###############Pure Phase Object####################
     return amp * np.exp(1j * phase_shift)
-
 
 def main():
     def FO1D(z, zCounter):
@@ -100,14 +118,64 @@ def main():
         matrixI += mat
 
     matrixI = np.abs(matrixI)
-
-    resultFileName = "FO1DResult_" + taskName + "_" + startTimeStamp + ".npy"
-
-    print("Saving result to:", resultFileName)
-
-    np.save(resultFileName, matrixI)
-    print("Done")
-
-
+    # matrixI = matrixI.T # single defocus
+    ####################save the result###############
+    # resultFileName = "FO1DResult_" + taskName + "_" + startTimeStamp + ".npy"
+    # print("Saving result to:", resultFileName)
+    # np.save(resultFileName, matrixI)
+    # print('Result saved')
+    ####################save the result###############
+    
+    ####################plot the result###############  
+    plt.subplot(211)
+    space = np.linspace(-simulatingSpaceSize,simulatingSpaceSize,simulatingSpaceTotalStep)
+    phase = np.zeros_like(space)
+    for counter,element in enumerate(space):
+        if element<0:
+            phase[counter]=np.pi    
+    plt.plot(space,phase)
+    plt.ylabel('Phase')
+    plt.title('Pure pi phase object')
+    plt.tight_layout()
+    
+    plt.subplot(212)
+    plt.plot(space,matrixI)
+    # plt.xlim(simulatingSpaceTotalStep/2-40,simulatingSpaceTotalStep/2+40)
+    # plt.ylim(0.6,1.4)
+    plt.title('Pure pi phase object')
+    plt.xlabel('Position (nm)')
+    plt.ylabel('Intensity')
+    plt.tight_layout()    
+    
+    ####################plot the result###############
+    
+    ####################save the plot###############
+    
+    # resultPlotName = "Pure_pi_Phase_Object_"+str(vmin)+'_'+str(vmax)+".png"
+    # print("Saving result to:",resultPlotName)
+    # plt.savefig(resultPlotName)
+    # print("Plot saved")
+    
+    ####################save the plot###############
+    
+    plt.show()
+    
+    
+    print('U_a = ' + str(U_a) + ' eV')
+    print('U_o = ' + str(U_o) + ' eV')
+    print('C_c = ' + str(C_c) + ' m')
+    print('C_3c = ' + str(C_3c) + ' m')
+    print('C_cc = ' + str(C_cc) + ' m')
+    print('C_3 = ' + str(C_3) + ' m')
+    print('C_5 = '+ str(C_5) + ' m')
+    print('alpha_ap = ' + str(alpha_ap) +' rad')
+    print('alpha_ill = ' + str(alpha_ill) + ' rad')
+    print('delta_E = ' + str(delta_E) +' eV')
+    print('M_L = ' + str(M_L))
+    # print('vmin and vmax = ' + str(vmin) + ' and ' + str(vmax))
+    ####################plot the result###############
+    
+    print('Done')
 if __name__ == '__main__':
     main()
+    
