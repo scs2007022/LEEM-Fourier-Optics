@@ -1,3 +1,5 @@
+#matplotlib inline
+
 from datetime import datetime
 from joblib import Parallel, delayed
 from FO1Dconstants import *
@@ -11,23 +13,20 @@ object_wavelength = 900e-9
 
 
 def create_simulated_space():
-    period = 800
-    simulated_space = np.linspace(-period, period, simulatingSpaceTotalStep)
+    simulated_space = np.linspace(-simulatingSpaceSize, simulatingSpaceSize, simulatingSpaceTotalStep)
     return simulated_space
 
 
 def create_object_fucntion():
     simulated_space = create_simulated_space()
     # #####################Step Object#####################
-    K = 1
-    h = np.zeros_like(simulated_space)
-    for counter, element in enumerate(simulated_space):
-        if element < 0:
-            h[counter] = 1
-    h = K * h
-    simulated_space *= 1e-9
-    phase_shift = K * h * np.pi
-    amp = 1
+    # K = 1
+    # h = np.zeros_like(simulated_space)
+    # for counter, element in enumerate(simulated_space):
+    #     if element < 0:
+    #         h[counter] = 1
+    # phase_shift = K * h * np.pi
+    # amp = 1
     # #####################Step Object#####################
 
     #####################Sin Object#####################
@@ -41,21 +40,23 @@ def create_object_fucntion():
     #####################Sin Object#####################
     
     ###############Pure Amplitude Object################
+    # K = 1
+    # h = np.zeros_like(simulated_space)
+    # for counter, element in enumerate(simulated_space):
+    #     if element < 0:
+    #         h[counter] = 1
     # phase_shift = 0
-    # amp = np.zeros_like(simulated_space)
-    # cut = math.ceil(simulatingSpaceTotalStep/2)
-    # for i in range(-cut,0):
-    #     amp[i] = 1
-    # for i in range(0,cut+1):
-    #     amp[i] = 0.5**0.5
+    # amp = K*h
     ###############Pure Amplitude Object################
     
     ###############Pure Phase Object####################
-    # phase_shift = np.zeros_like(simulated_space)
-    # cut = math.ceil(simulatingSpaceTotalStep/2)
-    # for i in range(0,cut+1):
-    #     phase_shift[i] = np.pi
-    # amp = 1
+    K = 1
+    h = np.zeros_like(simulated_space)
+    for counter, element in enumerate(simulated_space):
+        if element < 0:
+            h[counter] = 1
+    phase_shift = K * h * np.pi
+    amp = 1
     ###############Pure Phase Object####################
     return amp * np.exp(1j * phase_shift)
 
@@ -80,6 +81,7 @@ def main():
         return matrixI
 
     simulated_space = create_simulated_space()
+    simulated_space *= 1e-9
     wave_obj = create_object_fucntion()
 
     objectFileName = "FO1DObjectWave_" + taskName + "_" + startTimeStamp + ".npy"
@@ -128,30 +130,44 @@ def main():
     
     ####################plot the result###############  
     plt.subplot(211)
-    space = np.linspace(-simulatingSpaceSize,simulatingSpaceSize,simulatingSpaceTotalStep)
+    space = create_simulated_space()+simulatingSpaceSize/simulatingSpaceTotalStep
     phase = np.zeros_like(space)
     for counter,element in enumerate(space):
         if element<0:
-            phase[counter]=np.pi    
+            phase[counter]=1    
     plt.plot(space,phase)
-    plt.ylabel('Phase')
-    plt.title('Pure pi phase object')
+    plt.ylabel('Amplitude')
+    plt.title('Pure amplitude object')
     plt.tight_layout()
     
     plt.subplot(212)
     plt.plot(space,matrixI)
-    # plt.xlim(simulatingSpaceTotalStep/2-40,simulatingSpaceTotalStep/2+40)
-    # plt.ylim(0.6,1.4)
-    plt.title('Pure pi phase object')
+    # plt.plot(space,matrixI[:,1])
+    plt.title('Pure amplitude object')
     plt.xlabel('Position (nm)')
     plt.ylabel('Intensity')
+    
+    plt.xlim(-40,40)
+    plt.ylim(0,2)
+    
+    # plt.xlim(-10,10)
+    # plt.ylim(0,2)    
+    
+    # plt.xlim(-0.1,0.1)
+    # plt.ylim(0,0.01)
+
+    # plt.xlim(-40,-39)
+    # plt.ylim(0.9999,1.0001)
+    
     plt.tight_layout()    
     
     ####################plot the result###############
     
+    # print(matrixI[0][1])
+    
     ####################save the plot###############
     
-    # resultPlotName = "Pure_pi_Phase_Object_"+str(vmin)+'_'+str(vmax)+".png"
+    # resultPlotName = "Pure_pi_Phase_Object(C_3=55.8e30)"+".png"
     # print("Saving result to:",resultPlotName)
     # plt.savefig(resultPlotName)
     # print("Plot saved")
@@ -172,6 +188,8 @@ def main():
     print('alpha_ill = ' + str(alpha_ill) + ' rad')
     print('delta_E = ' + str(delta_E) +' eV')
     print('M_L = ' + str(M_L))
+    print('delta_z = ' + str(delta_z_series))
+    print('Intensity minimum =' + str(min(matrixI)))
     # print('vmin and vmax = ' + str(vmin) + ' and ' + str(vmax))
     ####################plot the result###############
     

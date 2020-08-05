@@ -10,7 +10,7 @@ taskName = "ACSinObject"
 numberOfThreads = -1  # number of threads used in the simulation with -1 means using all threads, -2 means using all threads minus 1.
 
 simulatingSpaceSize = 100  # total simulating space in nm
-simulatingSpaceTotalStep = 400 # total simulating steps
+simulatingSpaceTotalStep = 2**10 # total simulating steps
 
 ##################### Basic setting ####################
 U_a = 18e3      # eV    Accelerating Voltage
@@ -68,11 +68,11 @@ M_L = 1         #       Lateral Magnification
 #############convert defocus_current into delta_z#############
 
 ##################directly use delta_z#############
-delta_z_series = np.linspace(-200E-6, 200E-6, 101)
+# delta_z_series = np.linspace(-200E-6, 200E-6, 101)
 ##################directly use delta_z#############
 
 ##################single delta_z#################
-# delta_z_series = [0]
+delta_z_series = [0]#2e-4
 ##################single delta_z#################
 # print(delta_z_series)
     
